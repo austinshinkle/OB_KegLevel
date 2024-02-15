@@ -62,8 +62,11 @@ try:
 			sleep(1)
 		
 		# add a GPIO exception here
-		except:
-			pass
+		except KeyboardInterrupt:
+			print('Script cancelled by user!')
+			print('Cleaning up the GPIO...')
+			GPIO.cleanup()  # always do a GPIO cleanup in your scripts!
+			break
 		
 
 	
