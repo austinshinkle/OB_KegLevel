@@ -1,7 +1,13 @@
+# system imports
+from time import sleep
+
+# weight sensor imports
 from hx711 import HX711
 import RPi.GPIO as GPIO
-from time import sleep
 from gpiozero import LED
+
+# display imports
+import justpy as jp
 
 # samples that should be taken for each sensor
 SAMPLES = 5
@@ -17,7 +23,14 @@ SENSOR_2_SCALE = 1/600 #temp value
 led_green = LED(12)
 led_red = LED(25)
 
+def hello_world():
+    wp = jp.WebPage()
+    jp.Hello(a=wp)
+    return wp
+
 try:
+	
+	#jp.justpy(hello_world)
 	
 	# channel A for amplifier board @ 128 gain for maximum signal swing
 	hx711 = HX711(
