@@ -10,3 +10,5 @@ I had to uninstall the GPIO package and install lgpio since GPIO is not natively
 Sensor 1 is connected on GPIO5 an GPIO6
 
 Sensor 2 is connected on GPIO9 and GPIO10
+
+Added dependecy to justpy library
