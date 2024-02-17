@@ -6,8 +6,13 @@ from gpiozero import LED
 # samples that should be taken for each sensor
 SAMPLES = 5
 
-OFFSET_SCALE_1 = -519856.2
-OFFSET_SCALE_2 = -640729.2
+# calibration data for sensor 1
+SENSOR_1_OFFSET = -519856.2 #temp value
+SENSOR_1_SCALE = 1/1000 #temp value
+
+# calibration data for sensor 2
+SENSOR_2_OFFSET = -640729.2 #temp value
+SENSOR_2_SCALE = 1/600 #temp value
 
 led_green = LED(12)
 led_red = LED(25)
@@ -34,47 +39,59 @@ try:
 	hx711.reset()   # Before we start, reset the HX711 (not obligate)	
 	hx711_2.reset()   # Before we start, reset the HX711 (not obligate)
 
-	
+	# main program loop
 	while True:
 
-		try:
+		try:		
 			
-			sensor_1_avg = 0
-			sensor_2_avg = 0
+			### sensor 1 ###
 			
-			measures = hx711.get_raw_data(times=SAMPLES)
+			# measure sensor values
+			sensor_1_measures = hx711.get_raw_data(times=SAMPLES)
 			
-			num = 0
-			while num < SAMPLES:
-				sensor_1_avg += measures[num]
-				num += 1
-			sensor_1_avg /= SAMPLES
+			# get average of all sensor values
+			sensor_1_raw = 0
+			for x in range(SAMPLES):
+				sensor_1_raw += sensor_1_measures[x]
+				x += 1
+			sensor_1_raw /= SAMPLES
 			
-			# apply offset
-			sensor_1_avg = int(sensor_1_avg - OFFSET_SCALE_1)
+			# apply scale and offset --> percent
+			sensor_1_pct = int(SENSOR_1_SCALE * (sensor_1_raw - SENSOR_1_OFFSET))
+			if sensor_1_pct < 0:
+				sensor_1_pct = 0
+				
+			### end sensor 1 ###
 			
+			### sensor 2 ###	
 			
-						
-			measures_2 = hx711_2.get_raw_data(times=SAMPLES)
+			# measure sensor values
+			sensor_2_measures = hx711_2.get_raw_data(times=SAMPLES)
 			
-			num = 0
-			while num < SAMPLES:
-				sensor_2_avg += measures_2[num]
-				num += 1
-			sensor_2_avg /= SAMPLES
+			# get average of all sensor values
+			sensor_2_raw = 0
+			for x in range(SAMPLES):
+				sensor_2_raw += sensor_2_measures[x]
+				x += 1
+			sensor_2_raw /= SAMPLES
 			
-			# apply offset
-			sensor_2_avg = int(sensor_2_avg - OFFSET_SCALE_2)
+			# apply scale and offset --> percent
+			sensor_2_pct = int(SENSOR_2_SCALE * (sensor_2_raw - SENSOR_2_OFFSET))
+			if sensor_2_pct < 0:
+				sensor_2_pct = 0
 			
-			if sensor_1_avg < 0:
+			### end sensor 2 ###
+			
+			# for fun turn on an LED when scale 1 is less than 50
+			if sensor_1_pct < 50:
 				led_red.on();
 				led_green.off()
 			else:
 				led_red.off();
 				led_green.on()	
 			
-
-			print(f"{sensor_1_avg},{sensor_2_avg}")
+			# show the sensor values
+			print(f"{sensor_1_pct}%,{sensor_2_pct}%")
     
 			sleep(.5)
 		
