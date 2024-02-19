@@ -21,10 +21,20 @@ SENSOR_1_SCALE = 1/1000 #temp value
 SENSOR_2_OFFSET = -640729.2 #temp value
 SENSOR_2_SCALE = 1/600 #temp value
 
+# styles for CSS formatting
+CSS_HEADING_H1 = 'color: #111111; font-variant: small-caps; font-size: xxx-large; font-weight: 500; font-family: Andale Mono, monospace'
+CSS_HEADING_H2 = 'color: #222222; font-variant: small-caps; font-size: xx-large; font-weight: 500; font-family: Andale Mono, monospace'
+CSS_LABEL = 'color: #333333; font-variant: small-caps; font-size: x-large; font-family: Andale Mono, monospace'
+
+# on tap images
+ON_TAP_KEG_1_IMAGE = 'https://static.wixstatic.com/media/22ae94_0e87a582058c47d1ba8227377bd4b334~mv2.png'
+ON_TAP_KEG_2_IMAGE = 'https://static.wixstatic.com/media/d3a926_41fdde2b7fce45c8a37755d2797470c3~mv2.png'
+
 # Global variables to communicate between threads
 terminate_thread = False
 sensor_1_pct = 0
 sensor_2_pct = 0
+
 
 led_green = LED(12)
 led_red = LED(25)
@@ -115,18 +125,31 @@ try:
 	thread = threading.Thread(target=measure_kegs)
 	thread.start()
 	
+	### FIX THIS LATER!!!! (not a good implementation)
 	sleep(5)
 	
-	ui.image('../media/Ostentatious Brewing - Robot 2.jpeg').style("width: 150px")
-	ui.markdown("#Ostententatious Brewing!")
-	ui.markdown("##These are the current keg levels!")
-	keg_1 = ui.label()
-	keg_2 = ui.label()
+	# setup up the UI for the web page
+	with ui.row():
+		ui.image('../media/Ostentatious Brewing - Robot 2.jpeg').style("width: 100px")
+		ui.label('CSS').style(CSS_HEADING_H1).set_text("Ostententatious Brewing!")
+	ui.label('CSS').style(CSS_HEADING_H2).set_text("This is what is on tap!")
+	with ui.row():
+		with ui.card():
+			ui.label('CSS').style(CSS_HEADING_H2).set_text("Tap 1")
+			ui.image(ON_TAP_KEG_1_IMAGE).style("width: 250px")
+			keg_1 = ui.label('CSS').style(CSS_LABEL)
+		with ui.card():
+			ui.label('CSS').style(CSS_HEADING_H2).set_text("Tap 2")		
+			ui.image(ON_TAP_KEG_2_IMAGE).style("width: 250px")
+			keg_2 = ui.label('CSS').style(CSS_LABEL)
+	ui.link('Ostentatious Brewing Website', 'https://ostentatiousbrewing.wixsite.com/ostentatiousbrewing', new_tab=True).style(CSS_LABEL)
 	
-	ui.timer(1.0, lambda: keg_1.set_text(f'Keg 1:{sensor_1_pct}%'))
-	ui.timer(1.0, lambda: keg_2.set_text(f'Keg 2:{sensor_2_pct}%'))
+	# update UI elements on a timer
+	ui.timer(1.0, lambda: keg_1.set_text(f'{sensor_1_pct}% Beer Remaining'))
+	ui.timer(1.0, lambda: keg_2.set_text(f'{sensor_2_pct}% Beer Remaining'))
 	
-	ui.run(reload=False)
+	# run the UI
+	ui.run(reload=False, title="Ostentatious Brewing")
 	
 	# Wait for keyboard input to terminate the thread
 	input("Press Enter to stop the program..\n")
