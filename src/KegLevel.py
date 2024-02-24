@@ -29,9 +29,15 @@ CSS_HEADING_H2 = 'color: #222222; font-variant: small-caps; font-size: xx-large;
 CSS_LABEL = 'color: #333333; font-variant: small-caps; font-size: x-large; font-family: Andale Mono, monospace'
 CSS_LABEL_SMALL = 'color: #333333; font-variant: small-caps; font-size: medium; font-family: Andale Mono, monospace'
 
-# on tap images
-ON_TAP_KEG_1_IMAGE = 'https://static.wixstatic.com/media/22ae94_0e87a582058c47d1ba8227377bd4b334~mv2.png'
-ON_TAP_KEG_2_IMAGE = 'https://static.wixstatic.com/media/d3a926_41fdde2b7fce45c8a37755d2797470c3~mv2.png'
+# ui variables and basic settings
+#ui_tap1_image = ui.image().style("width: 250px")
+#ui_tap1_beer_name = ui.label('CSS').style(CSS_LABEL_SMALL)
+#ui_tap1_abv = ui.label('CSS').style(CSS_LABEL_SMALL)
+#ui_tap1_ibu = ui.label('CSS').style(CSS_LABEL_SMALL)
+#ui_tap2_image = ui.image().style("width: 250px")
+#ui_tap2_beer_name = ui.label('CSS').style(CSS_LABEL_SMALL)
+#ui_tap2_abv = ui.label('CSS').style(CSS_LABEL_SMALL)
+#ui_tap2_ibu = ui.label('CSS').style(CSS_LABEL_SMALL)
 
 # Global variables to communicate between threads
 terminate_thread = False
@@ -200,6 +206,16 @@ def get_on_tap_info():
 			
 		sleep(15);
 
+def update_ui():
+
+	ui_tap1_image.set_source(tap1_image_url)
+	ui_tap1_abv.set_text(f"{tap1_abv} ABV")
+	ui_tap1_ibu.set_text(f"{tap1_ibu} IBU")
+	ui_tap2_image.set_source(tap2_image_url) 
+	ui_tap2_abv.set_text(f"{tap2_abv} ABV") 
+	ui_tap2_ibu.set_text(f"{tap2_ibu} IBU") 
+
+
 try:
 	
 	# channel A for amplifier board @ 128 gain for maximum signal swing
@@ -241,14 +257,14 @@ try:
 		with ui.card():
 			ui.label('CSS').style(CSS_HEADING_H2).set_text("Tap 1")
 			ui_tap1_image = ui.image(tap1_image_url).style("width: 250px")
-			ui_tap1_abv = ui.label('CSS').style(CSS_LABEL_SMALL).set_text(f"{tap1_abv} ABV")
-			ui_tap1_ibu = ui.label('CSS').style(CSS_LABEL_SMALL).set_text(f"{tap1_ibu} IBU")
+			ui_tap1_abv = ui.label('CSS').style(CSS_LABEL_SMALL)
+			ui_tap1_ibu = ui.label('CSS').style(CSS_LABEL_SMALL)
 			ui_tap1_pct_beer = ui.label('CSS').style(CSS_LABEL)
 		with ui.card():
 			ui.label('CSS').style(CSS_HEADING_H2).set_text("Tap 2")		
 			ui_tap2_image = ui.image(tap2_image_url).style("width: 250px")
-			ui_tap2_abv = ui.label('CSS').style(CSS_LABEL_SMALL).set_text(f"{tap2_abv} ABV")
-			ui_tap2_ibu = ui.label('CSS').style(CSS_LABEL_SMALL).set_text(f"{tap2_ibu} IBU")
+			ui_tap2_abv = ui.label('CSS').style(CSS_LABEL_SMALL)
+			ui_tap2_ibu = ui.label('CSS').style(CSS_LABEL_SMALL)
 			ui_tap2_pct_beer = ui.label('CSS').style(CSS_LABEL)
 	
 	# update UI elements on a timer
@@ -256,6 +272,8 @@ try:
 	ui.timer(1.0, lambda: ui_tap2_pct_beer.set_text(f'{sensor_2_pct}% Beer Remaining'))
 	
 	### TODO: TURN THIS GARBAGE INTO A PROPER IMPLEMENTATION :) ###
+	
+	ui.timer(15.0, lambda: update_ui()) 
 #	ui.timer(15.0, lambda: ui_tap1_image.set_source(tap1_image_url)) 
 #	ui.timer(15.0, lambda: ui_tap1_abv.set_text(f"{tap1_abv} ABV")) 
 #	ui.timer(15.0, lambda: ui_tap1_ibu.set_text(f"{tap1_ibu} IBU")) 
