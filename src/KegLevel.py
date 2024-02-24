@@ -204,7 +204,7 @@ def get_on_tap_info():
 		else:
 			print(f'Error: {response.status_code}')
 			
-		sleep(15);
+		sleep(60);
 
 def update_ui():
 
@@ -267,19 +267,11 @@ try:
 			ui_tap2_ibu = ui.label('CSS').style(CSS_LABEL_SMALL)
 			ui_tap2_pct_beer = ui.label('CSS').style(CSS_LABEL)
 	
-	# update UI elements on a timer
+	# update UI elements on timers
 	ui.timer(1.0, lambda: ui_tap1_pct_beer.set_text(f'{sensor_1_pct}% Beer Remaining'))
 	ui.timer(1.0, lambda: ui_tap2_pct_beer.set_text(f'{sensor_2_pct}% Beer Remaining'))
-	
-	### TODO: TURN THIS GARBAGE INTO A PROPER IMPLEMENTATION :) ###
-	
-	ui.timer(15.0, lambda: update_ui()) 
-#	ui.timer(15.0, lambda: ui_tap1_image.set_source(tap1_image_url)) 
-#	ui.timer(15.0, lambda: ui_tap1_abv.set_text(f"{tap1_abv} ABV")) 
-#	ui.timer(15.0, lambda: ui_tap1_ibu.set_text(f"{tap1_ibu} IBU")) 
-#	ui.timer(15.0, lambda: ui_tap2_image.set_source(tap2_image_url)) 
-#	ui.timer(15.0, lambda: ui_tap2_abv.set_text(f"{tap2_abv} ABV")) 
-#	ui.timer(15.0, lambda: ui_tap2_ibu.set_text(f"{tap2_ibu} IBU")) 
+	ui.timer(15, lambda: update_ui()) 
+
 	
 	
 	# run the UI
