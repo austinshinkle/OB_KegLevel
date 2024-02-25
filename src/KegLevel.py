@@ -29,16 +29,6 @@ CSS_HEADING_H2 = 'color: #222222; font-variant: small-caps; font-size: xx-large;
 CSS_LABEL = 'color: #333333; font-variant: small-caps; font-size: x-large; font-family: Andale Mono, monospace'
 CSS_LABEL_SMALL = 'color: #333333; font-variant: small-caps; font-size: medium; font-family: Andale Mono, monospace'
 
-# ui variables and basic settings
-#ui_tap1_image = ui.image().style("width: 250px")
-#ui_tap1_beer_name = ui.label('CSS').style(CSS_LABEL_SMALL)
-#ui_tap1_abv = ui.label('CSS').style(CSS_LABEL_SMALL)
-#ui_tap1_ibu = ui.label('CSS').style(CSS_LABEL_SMALL)
-#ui_tap2_image = ui.image().style("width: 250px")
-#ui_tap2_beer_name = ui.label('CSS').style(CSS_LABEL_SMALL)
-#ui_tap2_abv = ui.label('CSS').style(CSS_LABEL_SMALL)
-#ui_tap2_ibu = ui.label('CSS').style(CSS_LABEL_SMALL)
-
 # Global variables to communicate between threads
 terminate_thread = False
 sensor_1_pct = 0
@@ -58,6 +48,9 @@ tap2_image_url = ''
 led_green = LED(12)
 led_red = LED(25)
 
+# function that measures the values of the weight sensors
+# and stores the values in global variables
+# designed to be run in a thread 
 def measure_kegs():
 	
 	global terminate_thread
@@ -116,7 +109,10 @@ def measure_kegs():
 		#print(f"{sensor_1_pct}%,{sensor_2_pct}%")
 
 		sleep(.5)
-		
+
+# function that queries Ostentatious Brewing on Wix for the current
+# items on tap and updates the NiceGui variables	
+# designed to be run in a thread	
 def get_on_tap_info():
 	
 	global tap1_beer_name
@@ -130,14 +126,18 @@ def get_on_tap_info():
 	
 	global terminate_thread
 	
+	# Wix API key
 	api_key = "IST.eyJraWQiOiJQb3pIX2FDMiIsImFsZyI6IlJTMjU2In0.eyJkYXRhIjoie1wiaWRcIjpcIjI4ODk4OTNjLWEwNTgtNGYyZS1hZTljLWZkOTc4NTAyZTY1YVwiLFwiaWRlbnRpdHlcIjp7XCJ0eXBlXCI6XCJhcHBsaWNhdGlvblwiLFwiaWRcIjpcImUyZWRlNzQ2LTk3NGItNGU5MC05YjViLThlMWFhMTgxOTcxM1wifSxcInRlbmFudFwiOntcInR5cGVcIjpcImFjY291bnRcIixcImlkXCI6XCJkM2E5MjY4YS1hYmNhLTRkMDEtOTg5MC05MmJjM2E5YThmZGZcIn19IiwiaWF0IjoxNzA4NzU2Mjc0fQ.RG1RtK-aujdflcHiLK7NZ8BjkjLrC8nuoDPayCkyZ0QE1ZPXCX3BsngKVEmGh6KOZ_Gb58bQJ-d-PUa9WtAwRf3oi756qWpwg8VhWurfJag795rj7qMdV39mbzEU3jIN_HvxZn-T6Lr0dLYQw1Wc1cUgrTDUovJ3EYkug0P8T7M5KMToRovz-fxRaqphGUY1WkuHWEpVAYu5xyVeKAmMkqdy5F3xoR-8nhSjWswtJvYYO5qKPvPfEW5G1HZCsZEWwnk-tlkU0EbC2v68hzZlJmJ3ChV2h4PfR00Y4ks12WuUinEaOoIxFVi2jM32i-7WDtvsB_TlVHKOhKKrsf7eMQ"
 
+	# Wix account and site information
 	account_id = "d3a9268a-abca-4d01-9890-92bc3a9a8fdf"
 	site_id = "a8995e51-a20f-4a5b-88ca-720ed93eb1a7"
 
+	# Wix API endpoint for getting collection items and base image URL
 	query_endpoint = 'https://www.wixapis.com/wix-data/v2/items/query'
 	image_base_url = 'https://static.wixstatic.com/media/'
-
+	
+	# CMS database to query
 	query_data = {
 	  "dataCollectionId": "BeerRecipes"
 	}
@@ -152,18 +152,20 @@ def get_on_tap_info():
 
 	while not terminate_thread:
 	
+		# send the HTTP query
 		response = requests.post(query_endpoint, headers=headers, params=query_data)
+		print("Getting HTTP data from Ostentatious Brewing!")
 
-		# Check if the request was successful (status code 200)
+		# check if the request was successful (status code 200)
 		if response.status_code == 200:
+			
 			# Parse the JSON response
 			data = response.json()
 			
+			# determine how many elements exist
 			element_count = data['pagingMetadata']['count']
-
-			print(f"I found {element_count} elements")
 			
-			# Access the parsed data (as a Python dictionary)
+			# access the parsed data (as a Python dictionary)
 			num = 0
 			while num < element_count:
 				
@@ -178,11 +180,7 @@ def get_on_tap_info():
 					parts = data['dataItems'][num]['data']['image'].split("/")
 					tap1_image_url = image_base_url + parts[3]
 					
-					print(tap1_beer_name)
-					print(tap1_abv)
-					print(tap1_ibu)
-					print(tap1_image_url)
-					
+				#find information for Tap 2	
 				if data['dataItems'][num]['data']['onTap'] == 'Tap2':
 
 					#find information for Tap 2
@@ -194,11 +192,6 @@ def get_on_tap_info():
 					parts = data['dataItems'][num]['data']['image'].split("/")
 					tap2_image_url = image_base_url + parts[3]
 					
-					print(tap2_beer_name)
-					print(tap2_abv)
-					print(tap2_ibu)
-					print(tap2_image_url)
-					
 				num += 1
 				
 		else:
@@ -206,8 +199,11 @@ def get_on_tap_info():
 			
 		sleep(60);
 
+# function run on a timer to update the NiceGui
+# colection of calls that don't fit in a single lambda call
 def update_ui():
 
+	# update all the variables from global variables
 	ui_tap1_image.set_source(tap1_image_url)
 	ui_tap1_abv.set_text(f"{tap1_abv} ABV")
 	ui_tap1_ibu.set_text(f"{tap1_ibu} IBU")
@@ -215,7 +211,7 @@ def update_ui():
 	ui_tap2_abv.set_text(f"{tap2_abv} ABV") 
 	ui_tap2_ibu.set_text(f"{tap2_ibu} IBU") 
 
-
+# main program
 try:
 	
 	# channel A for amplifier board @ 128 gain for maximum signal swing
@@ -239,11 +235,12 @@ try:
 	hx711_2.reset()   # Before we start, reset the HX711 (not obligate)
 
 	# start the thread to measure the kegs
-	thread = threading.Thread(target=measure_kegs)
-	thread.start()
+	thread_measure_kegs = threading.Thread(target=measure_kegs)
+	thread_measure_kegs.start()
 	
-	thread2 = threading.Thread(target=get_on_tap_info)
-	thread2.start()
+	# start the thread to query the web site for new data
+	thread_get_on_tap_info = threading.Thread(target=get_on_tap_info)
+	thread_get_on_tap_info.start()
 	
 	### FIX THIS LATER!!!! (not a good implementation)
 	sleep(5)
@@ -272,15 +269,16 @@ try:
 	ui.timer(1.0, lambda: ui_tap2_pct_beer.set_text(f'{sensor_2_pct}% Beer Remaining'))
 	ui.timer(15, lambda: update_ui()) 
 
-	
-	
 	# run the UI
 	ui.run(reload = False, title="Ostentatious Brewing")
 	
 	# Wait for keyboard input to terminate the thread
 	input("Press Enter to stop the program..\n")
 	terminate_thread = True
-	thread.join()
+	
+	# wait for the measure keg thread to complete
+	# note: terminate other threads immediately
+	thread_measure_kegs.join()
 
 	
 finally:
