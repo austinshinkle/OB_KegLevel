@@ -154,51 +154,55 @@ def get_on_tap_info():
 
 	while not terminate_thread:
 	
-		# send the HTTP query
-		response = requests.post(query_endpoint, headers=headers, params=query_data)
-		print("Getting HTTP data from Ostentatious Brewing!")
+		try:
+			# send the HTTP query
+			response = requests.post(query_endpoint, headers=headers, params=query_data)
+			print("Getting HTTP data from Ostentatious Brewing!")
 
-		# check if the request was successful (status code 200)
-		if response.status_code == 200:
-			
-			# Parse the JSON response
-			data = response.json()
-			
-			# determine how many elements exist
-			element_count = data['pagingMetadata']['count']
-			
-			# access the parsed data (as a Python dictionary)
-			num = 0
-			while num < element_count:
+			# check if the request was successful (status code 200)
+			if response.status_code == 200:
 				
-				#find information for Tap 1
-				if data['dataItems'][num]['data']['onTap'] == 'Tap1':
-
-					tap1_beer_name = data['dataItems'][num]['data']['title']            
-					tap1_abv = data['dataItems'][num]['data']['actualAbv']
-					tap1_ibu = data['dataItems'][num]['data']['calculatedIbu']
-					
-					# get the image string and split the string by "/" and then put the full url together
-					parts = data['dataItems'][num]['data']['image'].split("/")
-					tap1_image_url = image_base_url + parts[3]
-					
-				#find information for Tap 2	
-				if data['dataItems'][num]['data']['onTap'] == 'Tap2':
-
-					#find information for Tap 2
-					tap2_beer_name = data['dataItems'][num]['data']['title']            
-					tap2_abv = data['dataItems'][num]['data']['actualAbv']
-					tap2_ibu = data['dataItems'][num]['data']['calculatedIbu']
-					
-					# get the image string and split the string by "/" and then put the full url together
-					parts = data['dataItems'][num]['data']['image'].split("/")
-					tap2_image_url = image_base_url + parts[3]
-					
-				num += 1
+				# Parse the JSON response
+				data = response.json()
 				
-		else:
-			print(f'Error: {response.status_code}')
-			
+				# determine how many elements exist
+				element_count = data['pagingMetadata']['count']
+				
+				# access the parsed data (as a Python dictionary)
+				num = 0
+				while num < element_count:
+					
+					#find information for Tap 1
+					if data['dataItems'][num]['data']['onTap'] == 'Tap1':
+
+						tap1_beer_name = data['dataItems'][num]['data']['title']            
+						tap1_abv = data['dataItems'][num]['data']['actualAbv']
+						tap1_ibu = data['dataItems'][num]['data']['calculatedIbu']
+						
+						# get the image string and split the string by "/" and then put the full url together
+						parts = data['dataItems'][num]['data']['image'].split("/")
+						tap1_image_url = image_base_url + parts[3]
+						
+					#find information for Tap 2	
+					if data['dataItems'][num]['data']['onTap'] == 'Tap2':
+
+						#find information for Tap 2
+						tap2_beer_name = data['dataItems'][num]['data']['title']            
+						tap2_abv = data['dataItems'][num]['data']['actualAbv']
+						tap2_ibu = data['dataItems'][num]['data']['calculatedIbu']
+						
+						# get the image string and split the string by "/" and then put the full url together
+						parts = data['dataItems'][num]['data']['image'].split("/")
+						tap2_image_url = image_base_url + parts[3]
+						
+					num += 1
+					
+			else:
+				print(f'Error: {response.status_code}')
+		
+		except:
+			print("Could not connect to the server...will try again later")
+				
 		sleep(60);
 
 # function run on a timer to update the NiceGui
