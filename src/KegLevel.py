@@ -29,6 +29,8 @@ CSS_HEADING_H2 = 'color: #222222; font-variant: small-caps; font-size: xx-large;
 CSS_LABEL = 'color: #333333; font-variant: small-caps; font-size: x-large; font-family: Andale Mono, monospace'
 CSS_LABEL_SMALL = 'color: #333333; font-variant: small-caps; font-size: medium; font-family: Andale Mono, monospace'
 
+FAVICON = '../media/favicon-32x32.png'
+
 # Global variables to communicate between threads
 terminate_thread = False
 sensor_1_pct = 0
@@ -270,7 +272,7 @@ try:
 	ui.timer(15, lambda: update_ui()) 
 
 	# run the UI
-	ui.run(reload = False, title="Ostentatious Brewing")
+	ui.run(reload = False, title="Ostentatious Brewing", favicon=FAVICON)
 	
 	# Wait for keyboard input to terminate the thread
 	input("Press Enter to stop the program..\n")
